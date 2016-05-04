@@ -6,10 +6,13 @@ import static javaposse.jobdsl.dsl.Preconditions.checkArgument
 
 class GitLabTriggerContext implements Context {
     private static final Set<String> VALID_EXECUTION_STATUSES = ['never', 'source', 'both']
+    private static final Set<String> VALID_BRANCH_FILTER_TYPES = ['all', 'nameBasedFilter', 'regexBasedFilter']
 
     String includeBranches = ''
     String excludeBranches = ''
+    String targetBranchRegex = ''
     String rebuildOpenMergeRequest = 'never'
+    String branchFilterType = 'all'
     boolean buildOnMergeRequestEvents = true
     boolean buildOnPushEvents = true
     boolean enableCiSkip = true
@@ -18,7 +21,6 @@ class GitLabTriggerContext implements Context {
     boolean addVoteOnMergeRequest = true
     boolean useCiFeatures = false
     boolean acceptMergeRequestOnSuccess = false
-    boolean allowAllBranches = false
 
     /**
      * Comma-separated list of source branches allowed to trigger a build from a push event.
@@ -32,6 +34,15 @@ class GitLabTriggerContext implements Context {
      */
     void excludeBranches(String excludeBranches) {
         this.excludeBranches = excludeBranches
+    }
+
+    /**
+     * The target branch regex allows to limit the execution of this job to
+     * certain branches. Any branch matching the specified pattern triggers the
+     * job.
+     */
+    void targetBranchRegex(String targetBranchRegex) {
+        this.targetBranchRegex = targetBranchRegex
     }
 
     /**
@@ -91,10 +102,16 @@ class GitLabTriggerContext implements Context {
     }
 
     /**
-     * If set, ignores filtered branches. Defaults to {@code false}.
+     * Sets branch filter type. Defaults to {@code 'all'}.
+     *
+     * Possible values are {@code 'all'}, {@code 'nameBasedFilter'}, {@code 'regexBasedFilter'}.
      */
-    void allowAllBranches(boolean allowAllBranches = true) {
-        this.allowAllBranches = allowAllBranches
+    void branchFilterType(String branchFilterType) {
+        checkArgument(
+            VALID_BRANCH_FILTER_TYPES.contains(branchFilterType),
+            "branchFilter type must be one of ${VALID_BRANCH_FILTER_TYPES.join(', ')}"
+        )
+        this.branchFilterType = branchFilterType
     }
 
     /**

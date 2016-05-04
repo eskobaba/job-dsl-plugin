@@ -360,7 +360,7 @@ class TriggerContextSpec extends Specification {
         then:
         with(context.triggerNodes[0]) {
             name() == 'com.dabsquared.gitlabjenkins.GitLabPushTrigger'
-            children().size() == 13
+            children().size() == 14
             spec[0].value().empty
             triggerOnPush[0].value() == true
             triggerOnMergeRequest[0].value() == true
@@ -370,12 +370,11 @@ class TriggerContextSpec extends Specification {
             addNoteOnMergeRequest[0].value() == true
             addCiMessage[0].value() == false
             addVoteOnMergeRequest[0].value() == true
-            allowAllBranches[0].value() == false
             includeBranchesSpec[0].value().empty
             excludeBranchesSpec[0].value().empty
             acceptMergeRequestOnSuccess[0].value() == false
         }
-        1 * mockJobManagement.requireMinimumPluginVersion('gitlab-plugin', '1.1.28')
+        1 * mockJobManagement.requireMinimumPluginVersion('gitlab-plugin', '1.2.0')
     }
 
     def 'call gitlabPush trigger with all options'() {
@@ -390,15 +389,16 @@ class TriggerContextSpec extends Specification {
             addVoteOnMergeRequest(value)
             useCiFeatures(value)
             acceptMergeRequestOnSuccess(value)
-            allowAllBranches(value)
+            branchFilterType('all')
             includeBranches('include1,include2')
             excludeBranches('exclude1,exclude2')
+            targetBranchRegex('(.*debug.*|.*release.*)')
         }
 
         then:
         with(context.triggerNodes[0]) {
             name() == 'com.dabsquared.gitlabjenkins.GitLabPushTrigger'
-            children().size() == 13
+            children().size() == 14
             spec[0].value().empty
             triggerOnPush[0].value() == value
             triggerOnMergeRequest[0].value() == value
@@ -408,12 +408,13 @@ class TriggerContextSpec extends Specification {
             addNoteOnMergeRequest[0].value() == value
             addCiMessage[0].value() == value
             addVoteOnMergeRequest[0].value() == value
-            allowAllBranches[0].value() == value
+            branchFilterType[0].value() == 'all'
             includeBranchesSpec[0].value() == 'include1,include2'
             excludeBranchesSpec[0].value() == 'exclude1,exclude2'
+            targetBranchRegex[0].value() == '(.*debug.*|.*release.*)'
             acceptMergeRequestOnSuccess[0].value() == value
         }
-        1 * mockJobManagement.requireMinimumPluginVersion('gitlab-plugin', '1.1.28')
+        1 * mockJobManagement.requireMinimumPluginVersion('gitlab-plugin', '1.2.0')
 
         where:
         value << [true, false]

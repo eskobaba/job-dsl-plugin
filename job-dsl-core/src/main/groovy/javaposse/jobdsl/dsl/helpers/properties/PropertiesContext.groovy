@@ -152,4 +152,18 @@ class PropertiesContext extends AbstractExtensibleContext {
             delegate.priority(value)
         }
     }
+
+    /**
+     * Configures the Gitlab Connection to use
+     *
+     * Gitlab connections can be configured under global settings
+     *
+     * @since 1.46
+     */
+    @RequiresPlugin(id = 'gitlab-plugin', minimumVersion = '1.2.0')
+    void gitlabConnection(String connectionName) {
+        propertiesNodes << new NodeBuilder().'com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty' {
+            delegate.gitLabConnection(connectionName ?: '')
+        }
+    }
 }
